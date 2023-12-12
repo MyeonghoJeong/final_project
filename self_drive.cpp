@@ -31,39 +31,40 @@ public:
   void subscribe_scan(const sensor_msgs::msg::LaserScan::SharedPtr scan)
   {
     geometry_msgs::msg::Twist vel;
+    double front_distance = scan->ranges[0];
+    double diagonal_left_distance1 = scan->ranges[45];
+    double diagonal_left_distance2 = scan->ranges[135];
+    double left_vertical= scan->ranges[90];
     
-      if(scan->ranges[0] <= 0.25)
-      {      
-        vel.linear.x = 0.0;
-        vel.angular.z = -1.0;    
-      }
-      else
+       
+    if (front_distance <= 0.35)
+    {
+      vel.linear.x = 0.0;
+      vel.angular.z = -1.0;
+    }
+    else
+    {
+      vel.linear.x = 0.15;
+
+      if (left_vertical <= 0.2)
       {
         vel.linear.x = 0.15;
         vel.angular.z = 0.0;
       }
-
-      if (scan->ranges[120] <= 0.2 )
-      {
-        vel.linear.x = 0.0;
-        vel.angular.z = 1.0;
-      }     
-      else if (scan->ranges[60]<=0.2)
-      {
-        vel.linear.x = 0.0;
-        vel.angular.z = -1.0;
-      }
-      else if (scan->ranges[70]>0.6 && scan->ranges[90] <= 0.4)
+      else if (diagonal_left_distance1 > diagonal_left_distance2)
       {
         vel.linear.x = 0.1;
         vel.angular.z = 1.0;
       }
-      else
+      else if (diagonal_left_distance2 > diagonal_left_distance1)
       {
-          vel.linear.x = 0.15;
+        vel.linear.x = 0.1;
+        vel.angular.z = -1.0;
       }
       
       
+      
+    }
   
    std::cout <<"test09" <<std::endl;
     RCLCPP_INFO(rclcpp::get_logger("self_drive"),
